@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+    
+    <head> 
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+        <title>Resident and Humanitarian Coordinator Positions in the Field</title> 
+        <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.js'></script> 
+        <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.css' rel='stylesheet' /> 
+        <script src='http://code.jquery.com/jquery-1.8.3.min.js'></script> 
+        <script type="text/javascript" src='http://interactive.unocha.org/wrl/js/csv2geojson.js'></script> 
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js' charset="utf-8"></script>
+
+        <!-- css style for text--> 
+        <style type="text/css"> 
+            .label_country { 
+                font-family: Verdana, Geneva, sans-serif; 
+                color: #026CB6; 
+                font-weight: bold; 
+                font-size: 16px; 
+                text-transform: uppercase; 
+                padding-bottom: 5px; 
+            } 
+            .text { 
+                font-family: Verdana, Geneva, sans-serif; 
+                color: #666666; 
+                font-size: 14px; 
+            } 
+        </style> 
+        <!-- map element style --> 
+        <style> 
+            body { 
+                margin:0; 
+                padding:0; 
+            } 
+            #map { 
+                position: absolute; 
+                top: 0; 
+                bottom: 0px; 
+                height: 100%; 
+                width: 100%; 
+                background-color: #cccccc; 
+            } 
+            #legend { 
+                position: absolute; 
+                top: 5px; 
+                bottom: 5px; 
+                opacity:0.6; 
+            } 
+            <!-- popup for markers --> #open-popup { 
+                position:absolute; 
+                top:5px; 
+                right:5px; 
+            } 
+
+            /* Brushes for the circle */
+            .ui-brush {
+              background:#f8f8f8;
+              position:absolute;
+              bottom:0;right:0;left:0;
+              height:100px;
+            }
+            .brush .extent {
+              stroke:#fff;
+              fill-opacity:0.125;
+              shape-rendering:crispEdges;
+            }
+        </style> 
+    </head> 
+    
+    <body> 
+        <div id='map'></div> 
+        <!-- div id="brush" class="ui-brush"></div -->
+        <div id='legend'> 
+            <!-- table width="200" border="0" cellpadding="2" bgcolor="#FFFFFF" class="text"> 
+                <tr valign="top"> 
+                    <td> 
+                        <img src="markers/color_blue.svg" xxonerror="this.src=your.png"> 
+                    </td> 
+                    <td>Organization working in the area</td> 
+                </tr> 
+                <tr valign="top"></tr> 
+            </table --> 
+        </div> 
+        <script> 
+            L.mapbox.accessToken='pk.eyJ1IjoicmVsaWVmd2ViIiwiYSI6IldYR2ZuV3cifQ.eSPZMZWE6UyLtO0OH_-qrw';
+            // Create a map and overwrite min, max zoom and set the center and default zoom level. 
+            var map = L.mapbox.map('map', 'reliefweb.jfmdkg1d', { 
+                zoomControl: false, 
+                minZoom: 7, 
+                maxZoom: 9,
+                attributionControl: false,
+                infoControl: true
+            }) 
+            //    .setView([0, 20], 3) 
+            ; 
+
+            // Set zoom control to the right. 
+            new L.Control.Zoom({ 
+                position: 'topright' 
+            }).addTo(map); 
+
+            console.log(L.geoJson);
+
+            function pointColor(feature) {
+                return feature.properties.NumAgencies > 10 ? '#026CB6' : '#038ae8';
+            }
+
+            function pointRadius(feature) {
+                return feature.properties.NumAgencies > 15 ? 35 : ((feature.properties.NumAgencies / 20) * 50);
+            }
+
+            function scaledPoint(feature, latlng) {
+                console.log(feature, latlng);
+                return L.circleMarker(latlng, {
+                    radius: pointRadius(feature),
+                    fillColor: pointColor(feature),
+                    fillOpacity: 0.7,
+                    weight: 0.5,
+                    color: '#fff'
+                }).bindPopup(
+                    '<h1 class="label_country">' + feature.properties.COUNTY + '<\/h1>' + 
+                                '<p><span class="text">' + feature.properties.Agencies + '</span></p>');
+            }
+
+            console.log(L.geoJson(null, {pointToLayer: scaledPoint }).addto);
+            var agenciesLayer = L.geoJson(null, {pointToLayer: scaledPoint });
+            //console.log("Agencies:", );
+            agenciesLayer.addTo(map);
+
+
+
+            // Add markers if the text column in the table is not blank or undefined 
+            var featureLayer = L.mapbox.featureLayer() 
+                .addTo(map); 
+
+                        
+            //Look the csv file and convert into geojson 
+            $.ajax({ 
+                url: 
+                    'https://docs.google.com/spreadsheet/pub?key=0Ap0itMVUpmqcdGRXTDRUOUxSRS1pRENQdEhNaDRBcVE&output=csv', 
+                success: function csvLoad(csv) { 
+                    csv2geojson.csv2geojson(csv, function(err, data) { 
+
+                        agenciesLayer.addData(data);
+
+                        
+
+                        //featureLayer.setGeoJSON(data); 
+                        /*featureLayer.eachLayer(function(marker) { 
+                      
+
+            
+            marker.setIcon(L.mapbox.marker.icon({ 
+                                'marker-color': '#026CB6', 
+                                'marker-size': 'small', 
+                                'marker-opacity': '0.5' 
+
+                            })); 
+
+                            featureLayer.on('mouseover', function(e) { 
+                                e.layer.openPopup(); 
+                            }); 
+                            featureLayer.on('mouseout', function(e) { 
+                                e.layer.closePopup(); 
+                            }); 
+
+// here you call `bindPopup` with a string of HTML you create - the feature 
+// properties declared above are available under `layer.feature.properties` 
+                            var content = '<h1 class="label_country">' + marker.feature.properties.COUNTY + '<\/h1>' + 
+                                '<p><span class="text">' + marker.feature.properties.Agencies + '</span></p>'; 
+
+                            marker.bindPopup(content); 
+
+                        }); */
+
+                    }); 
+                } 
+            }); 
+
+            //           L.circle([40.267, 127.22],20000).addTo(map); 
+  
+            
+        </script> 
+    </body> 
+
+</html> `
