@@ -51,6 +51,25 @@
                 top:5px; 
                 right:5px; 
             } 
+            .label_country {
+                font-family: Arial, Geneva, sans-serif;
+                color: #026CB6;
+                font-weight: bold;
+                font-size: 16px;
+                text-transform: uppercase;
+                padding-bottom: 5px;
+            }
+            .text {
+                font-family: Arial, Geneva, sans-serif;
+                color: #666666;
+                font-size: 12px;
+            }
+            .text_bold {
+                font-family: Arial Bold, Geneva, sans-serif;
+                color: #231f20;
+                font-weight: bold;
+                font-size: 12px;
+            }
 
             /* Brushes for the circle */
             .ui-brush {
@@ -111,20 +130,43 @@
 
             function scaledPoint(feature, latlng) {
                 console.log(feature, latlng);
-                return L.circleMarker(latlng, {
+
+                var content = '<h1 class="label_country">' + feature.properties.COUNTY + '<\/h1>' 
+                            + '<p><span class="text_bold">' + feature.properties.Theme1 + '</span>' 
+                                + '<span class="text">' + feature.properties.Agency1 + '</span></p>' 
+                            + '<p><span class="text_bold">' + feature.properties.Theme2 + '</span>' 
+                                + '<span class="text">' + feature.properties.Agency2 + '</span></p>' 
+                                + '</span></p>' 
+                            + '<p><span class="text_bold">' + feature.properties.Theme3 + '</span>' 
+                                + '<span class="text">' + feature.properties.Agency3 + '</span></p>' 
+                            + '</span></p>' + '<p><span class="text_bold">' + feature.properties.Theme4 + '</span>' + '<span class="text">' + feature.properties.Agency4 + '</span></p>' + '</span></p>' 
+                            + '<p><span class="text_bold">' + feature.properties.Theme5 + '</span>' + '<span class="text">' + feature.properties.Agency5 + '</span></p>' + '</span></p>' 
+                            + '<p><span class="text_bold">' + feature.properties.Theme6 + '</span>' + '<span class="text">' + feature.properties.Agency6 + '</span></p>';
+
+                var marker = L.circleMarker(latlng, {
                     radius: pointRadius(feature),
                     fillColor: pointColor(feature),
                     fillOpacity: 0.7,
                     weight: 0.5,
                     color: '#fff'
-                }).bindPopup(
-                    '<h1 class="label_country">' + feature.properties.COUNTY + '<\/h1>' + 
-                                '<p><span class="text">' + feature.properties.Agencies + '</span></p>');
+                }).bindPopup(content);
+
+                
+                
+                return marker; 
             }
 
-            console.log(L.geoJson(null, {pointToLayer: scaledPoint }).addto);
+            //console.log(L.geoJson(null, {pointToLayer: scaledPoint }).addto);
             var agenciesLayer = L.geoJson(null, {pointToLayer: scaledPoint });
             //console.log("Agencies:", );
+            agenciesLayer.on('mouseover', function(e) {
+                                e.layer.openPopup();
+                    });
+
+            agenciesLayer.on('mouseout', function(e) {
+                            e.layer.closePopup();
+                    });
+
             agenciesLayer.addTo(map);
 
 
