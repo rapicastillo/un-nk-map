@@ -118,24 +118,26 @@
                 position: 'topright' 
             }).addTo(map); 
 
-            console.log(L.geoJson);
-
+        // setting up color for certain circle size  
             function pointColor(feature) {
                 return feature.properties.NumAgencies > 10 ? '#026CB6' : '#038ae8';
             }
 
+            // formula to calculate proportional circle size   
             function pointRadius(feature) {
                 return feature.properties.NumAgencies > 15 ? 35 : ((feature.properties.NumAgencies / 20) * 50);
             }
 
             function scaledPoint(feature, latlng) {
-                console.log(feature, latlng);
+            // assign coordinate to each circle 
 
+                 //style for pop-up text  
                 var content = '<h1 class="label_country">' + feature.properties.COUNTY + '<\/h1>' 
                             + '<p><span class="text_bold">' + feature.properties.Theme1 + '</span>' 
                                 + '<span class="text">' + feature.properties.Agency1 + '</span></p>' 
                             + '<p><span class="text_bold">' + feature.properties.Theme2 + '</span>' 
                                 + '<span class="text">' + feature.properties.Agency2 + '</span></p>' 
+
                                 + '</span></p>' 
                             + '<p><span class="text_bold">' + feature.properties.Theme3 + '</span>' 
                                 + '<span class="text">' + feature.properties.Agency3 + '</span></p>' 
@@ -185,42 +187,9 @@
 
                         agenciesLayer.addData(data);
 
-                        
-
-                        //featureLayer.setGeoJSON(data); 
-                        /*featureLayer.eachLayer(function(marker) { 
-                      
-
-            
-            marker.setIcon(L.mapbox.marker.icon({ 
-                                'marker-color': '#026CB6', 
-                                'marker-size': 'small', 
-                                'marker-opacity': '0.5' 
-
-                            })); 
-
-                            featureLayer.on('mouseover', function(e) { 
-                                e.layer.openPopup(); 
-                            }); 
-                            featureLayer.on('mouseout', function(e) { 
-                                e.layer.closePopup(); 
-                            }); 
-
-// here you call `bindPopup` with a string of HTML you create - the feature 
-// properties declared above are available under `layer.feature.properties` 
-                            var content = '<h1 class="label_country">' + marker.feature.properties.COUNTY + '<\/h1>' + 
-                                '<p><span class="text">' + marker.feature.properties.Agencies + '</span></p>'; 
-
-                            marker.bindPopup(content); 
-
-                        }); */
-
                     }); 
                 } 
-            }); 
-
-            //           L.circle([40.267, 127.22],20000).addTo(map); 
-  
+            });   
             
         </script> 
     </body> 
